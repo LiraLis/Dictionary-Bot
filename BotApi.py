@@ -1,13 +1,32 @@
+# -*- coding: utf-8 -*-
 import requests
 import json
-from config import app_id, app_key, word_key
+import editdistance
+from BotDb import GetWordDB
+from config import app_id, app_key, url_ox1, url_ox,\
+                   word_key,  word_url1, word_url2, word_url3
 
+
+def GetLevenshtein(word):
+    str = ''
+    wordsList = GetWordDB(word.lower())
+    for x in wordsList:
+        dis = editdistance.eval(word.lower(), x)
+        if dis < 2:
+            str += x + ', '
+    if len(str) > 0:
+        str_1 = 'Did you mean: ' + '*' + str[0:len(str) - 2] + '*' + '?'
+        return str_1
+    else:
+        str_1 = 'Your search did not match any results!'
+        return str_1
 
 class Dictionary(object):
 
     def GetDefinitionOxfDic(self, word):
+
         word_id = word
-        url_1 = 'Oxford_Url_1' + word_id.lower()
+        url_1 =  url_ox1 + word_id.lower()
         json_data = []
         r = requests.get(url_1, headers={'app_id': app_id, 'app_key': app_key})
         if r.status_code != 404:
@@ -16,7 +35,8 @@ class Dictionary(object):
                 word_id = str(json_data[0]["results"][0]["lexicalEntries"][1]["inflectionOf"][0]["id"])
             else:
                 word_id = str(json_data[0]["results"][0]["lexicalEntries"][0]["inflectionOf"][0]["id"])
-            url = 'Oxford_Url' + word_id.lower()
+
+            url = url_ox + word_id.lower()
             json_data = []
             r = requests.get(url, headers={'app_id': app_id, 'app_key': app_key})
             json_data.append(json.loads(r.text))
@@ -36,20 +56,18 @@ class Dictionary(object):
             str_2 += '\nChosen dictionary: ' + '*Oxford Dictionary of English*'
             return str_2, word_id
         else:
-            str_1 = 'No exact matches found for "' + word + '"\n'
-            str_1 += '\nChosen dictionary: ' + '*Oxford Dictionary of English*'
+            str_1 = GetLevenshtein(word)
             return str_1, word_id
+
 
     def GetDefinitionWikiDic(self, word_id):
         w_dict = 'wiktionary'
-        word_url = 'http://api.wordnik.com:80/v4/word.json/' + word_id.lower() + '/definitions?limit=15&includeRelated=false&' \
-                                                                                 'sourceDictionaries=' + w_dict + \
-                   '&useCanonical=false&includeTags=false&api_key=' + word_key
+        word_url = word_url1 + word_id.lower() + word_url2 + w_dict + word_url3 + word_key
         json_data = []
         wordData = []
         r = requests.get(word_url)
         json_data.append(json.loads(r.text))
-        if r.status_code != 404 and len(json_data) > 0:
+        if r.status_code != 404 and len(json_data[0]) > 0:
             str_2 = ''
             k = 0
             while True:
@@ -61,16 +79,17 @@ class Dictionary(object):
                 else:
                     break
             str_2 += '\n'.join(wordData)
+
             str_2 += '\nChosen dictionary: ' + '*Wiktionary*'
             return str_2
         else:
-            str_1 = 'No exact matches found for "' + word_id + '"\n'
-            str_1 += '\nChosen dictionary: ' + '*Wiktionary*'
+            str_1 = GetLevenshtein(word_id)
             return str_1
+
 
     def GetDefinitionInterDic(self, word_id):
         w_dict = 'gcide'
-        word_url = 'Dictionary_of_English_url' + word_id.lower() +  w_dict + word_key
+        word_url = word_url1 + word_id.lower() + word_url2 + w_dict + word_url3 + word_key
         json_data = []
         wordData = []
         r = requests.get(word_url)
@@ -91,13 +110,12 @@ class Dictionary(object):
             str_2 += '\nChosen dictionary: ' + '*The Collaborative International Dictionary of English*'
             return str_2
         else:
-            str_1 = 'No exact matches found for "' + word_id + '"\n'
-            str_1 += '\nChosen dictionary: ' + '*The Collaborative International Dictionary of English*'
+            str_1 = GetLevenshtein(word_id)
             return str_1
 
     def GetDefinitionCycDic(self, word_id):
         w_dict = 'century'
-        word_url = 'Cyclopedia_url' + word_id.lower() + w_dict +  word_key
+        word_url = word_url1 + word_id.lower() + word_url2 + w_dict + word_url3 + word_key
         json_data = []
         wordData = []
         r = requests.get(word_url)
@@ -118,8 +136,7 @@ class Dictionary(object):
             str_2 += '\nChosen dictionary: ' + '*The Century Dictionary and Cyclopedia*'
             return str_2
         else:
-            str_1 = 'No exact matches found for "' + word_id + '"\n'
-            str_1 += '\nChosen dictionary: ' + '*The Century Dictionary and Cyclopedia*'
+            str_1 = GetLevenshtein(word_id)
             return str_1
 
 
