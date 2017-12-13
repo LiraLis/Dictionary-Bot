@@ -24,7 +24,6 @@ def GetLevenshtein(word):
 class Dictionary(object):
 
     def GetDefinitionOxfDic(self, word):
-
         word_id = word
         url_1 =  url_ox1 + word_id.lower()
         json_data = []
@@ -53,7 +52,6 @@ class Dictionary(object):
                 else:
                     break
             str_2 += '\n'.join(wordData)
-            str_2 += '\nChosen dictionary: ' + '*Oxford Dictionary of English*'
             return str_2, word_id
         else:
             str_1 = GetLevenshtein(word)
@@ -70,17 +68,20 @@ class Dictionary(object):
         if r.status_code != 404 and len(json_data[0]) > 0:
             str_2 = ''
             k = 0
-            while True:
-                if k < len(json_data[0]):
-                    str_1 = str(json_data[0][k]['text'])
-                    str_1 = '>> ' + str_1 + '\n'
-                    wordData.append(str_1)
-                    k += 1
-                else:
-                    break
+            if len(json_data[0]) == 1:
+                str_1 = str(json_data[0][k]['text'])
+                str_1 = '>> ' + str_1 + '\n'
+                wordData.append(str_1)
+            else:
+                while True:
+                    if k < len(json_data[0]) - 1:
+                        str_1 = str(json_data[0][k]['text'])
+                        str_1 = '>> ' + str_1 + '\n'
+                        wordData.append(str_1)
+                        k += 1
+                    else:
+                        break
             str_2 += '\n'.join(wordData)
-
-            str_2 += '\nChosen dictionary: ' + '*Wiktionary*'
             return str_2
         else:
             str_1 = GetLevenshtein(word_id)
@@ -95,19 +96,22 @@ class Dictionary(object):
         r = requests.get(word_url)
         json_data.append(json.loads(r.text))
         if r.status_code != 404 and len(json_data[0]) > 0:
-            json_data.append(json.loads(r.text))
             str_2 = ''
             k = 0
-            while True:
-                if k < len(json_data[0]):
-                    str_1 = str(json_data[0][k]['text'])
-                    str_1 = '>> ' + str_1 + '\n'
-                    wordData.append(str_1)
-                    k += 1
-                else:
-                    break
+            if len(json_data[0]) == 1:
+                str_1 = str(json_data[0][k]['text'])
+                str_1 = '>> ' + str_1 + '\n'
+                wordData.append(str_1)
+            else:
+                while True:
+                    if k < len(json_data[0]) - 1:
+                        str_1 = str(json_data[0][k]['text'])
+                        str_1 = '>> ' + str_1 + '\n'
+                        wordData.append(str_1)
+                        k += 1
+                    else:
+                        break
             str_2 += '\n'.join(wordData)
-            str_2 += '\nChosen dictionary: ' + '*The Collaborative International Dictionary of English*'
             return str_2
         else:
             str_1 = GetLevenshtein(word_id)
@@ -124,16 +128,20 @@ class Dictionary(object):
             json_data.append(json.loads(r.text))
             str_2 = ''
             k = 0
-            while True:
-                if k < len(json_data[0]):
-                    str_1 = str(json_data[0][k]['text'])
-                    str_1 = '>> ' + str_1 + '\n'
-                    wordData.append(str_1)
-                    k += 1
-                else:
-                    break
+            if len(json_data[0]) == 1:
+                str_1 = str(json_data[0][k]['text'])
+                str_1 = '>> ' + str_1 + '\n'
+                wordData.append(str_1)
+            else:
+                while True:
+                    if k < len(json_data[0]) - 1:
+                        str_1 = str(json_data[0][k]['text'])
+                        str_1 = '>> ' + str_1 + '\n'
+                        wordData.append(str_1)
+                        k += 1
+                    else:
+                        break
             str_2 += '\n'.join(wordData)
-            str_2 += '\nChosen dictionary: ' + '*The Century Dictionary and Cyclopedia*'
             return str_2
         else:
             str_1 = GetLevenshtein(word_id)

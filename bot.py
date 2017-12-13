@@ -19,13 +19,13 @@ def send_help_message(message):
     bot.send_message(message.chat.id, start_message, parse_mode='markdown')
 
 
-@bot.message_handler(commands = ['oxford', 'wiki', 'cyclo','inter'], content_types=['text'])
+@bot.message_handler(commands = ['oxford', 'wiki', 'cyclo', 'inter'], content_types=['text'])
 def default_message_handler(message):
     if message.new_chat_member or not message.text:
         return
     global globDic
     globDic = message.text[1::]
-    sent = bot.send_message(message.chat.id, 'Enter you word, please:')
+    sent = bot.send_message(message.chat.id, 'Enter your word, please:')
     bot.register_next_step_handler(sent, make_reply)
 
 @bot.message_handler(commands = ['rating'])
@@ -59,24 +59,28 @@ def make_reply(message):
     word = message.text
     mess = ''
     reply_message = ''
-    if len(word) > 0:
-        stat_start = random.randint(0, 4)
+    if word != None and word.isalpha() and len(word) > 0:
+        stat_start = random.randint(0, 2)
         if globDic == 'oxford':
             mess, word = dictionary.GetDefinitionOxfDic(word)
             reply_message = '*' + word.upper() + '*\n\n'
             reply_message += mess + '\n'
+            reply_message += '\nChosen dictionary: ' + '*Oxford Dictionary of English*'
         if globDic == 'wiki':
             mess = dictionary.GetDefinitionWikiDic(word)
             reply_message = '*' + word.upper() + '*\n\n'
             reply_message += mess + '\n'
+            reply_message += '\nChosen dictionary: ' + '*Wiktionary*'
         if globDic == 'cyclo':
             mess = dictionary.GetDefinitionCycDic(word)
             reply_message = '*' + word.upper() + '*\n\n'
             reply_message += mess + '\n'
+            reply_message += '\nChosen dictionary: ' + '*The Century Dictionary and Cyclopedia*'
         if globDic == 'inter':
             mess = dictionary.GetDefinitionInterDic(word)
             reply_message = '*' + word.upper() + '*\n\n'
             reply_message += mess + '\n'
+            reply_message += '\nChosen dictionary: ' + '*The Collaborative International Dictionary of English*'
 
         if reply_message != '':
             bot.send_chat_action(message.chat.id, 'typing')
@@ -94,7 +98,6 @@ def make_reply(message):
                     keyboard.add(*[types.InlineKeyboardButton(text=name, callback_data=name) for name in
                                    ['Yes', 'No', 'Skip']])
                     bot.send_message(message.chat.id, reply_message, reply_markup=keyboard, parse_mode='markdown')
-
     else:
         reply_message = 'Error! Please, enter the command and the word again!'
         bot.send_message(message.chat.id, reply_message, parse_mode='markdown')
